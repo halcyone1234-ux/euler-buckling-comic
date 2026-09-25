@@ -92,3 +92,80 @@ body {
   opacity: 0; pointer-events: none; transition: opacity 0.2s;
 }
 .to-top.show { opacity: 1; pointer-events: auto; }
+
+/* ---------- Phone: one page at a time, turned like a book ---------- */
+.pager-bar, .swipe-hint { display: none; }
+
+.pager body { height: 100vh; height: 100dvh; overflow: hidden; overscroll-behavior: none; }
+.pager .footer, .pager .to-top, .pager .comic figcaption { display: none; }
+
+.pager .comic {
+  position: fixed; top: 48px; left: 0; right: 0; bottom: 52px;
+  max-width: none; margin: 0; padding: 0;
+  overflow: hidden; perspective: 1800px;
+  touch-action: manipulation; user-select: none; -webkit-user-select: none;
+}
+.pager .comic figure {
+  display: none; position: absolute; margin: 0;
+  transform-origin: left center; backface-visibility: hidden;
+}
+.pager .comic img { width: 100%; height: 100%; border-radius: 2px; }
+.pager .comic figure.current { display: block; z-index: 2; }
+.pager .comic figure.under { display: block; z-index: 1; }
+.pager .comic figure.flip-out,
+.pager .comic figure.flip-in { display: block; z-index: 3; }
+
+.pager .comic figure.flip-out { animation: flip-out 0.7s cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards; }
+.pager .comic figure.flip-in { animation: flip-in 0.7s cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards; }
+
+/* Shade on the turning page and on the page underneath, like light across paper. */
+.pager .comic figure::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0;
+}
+.pager .comic figure.flip-out::after,
+.pager .comic figure.flip-in::after { background: linear-gradient(to left, rgb(0 0 0 / 0.35), rgb(0 0 0 / 0.05)); }
+.pager .comic figure.flip-out::after { animation: shade-in 0.7s forwards; }
+.pager .comic figure.flip-in::after { animation: shade-out 0.7s forwards; }
+.pager .comic figure.under::after { background: rgb(0 0 0 / 0.3); animation: shade-out 0.7s forwards; }
+
+@keyframes flip-out {
+  from { transform: rotateY(0deg); }
+  to   { transform: rotateY(-105deg); }
+}
+@keyframes flip-in {
+  from { transform: rotateY(-105deg); }
+  to   { transform: rotateY(0deg); }
+}
+@keyframes shade-in  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes shade-out { from { opacity: 1; } to { opacity: 0; } }
+
+.pager .pager-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; height: 52px; z-index: 10;
+  display: flex; align-items: center; justify-content: center; gap: 28px;
+  background: var(--bg); border-top: 1px solid var(--line);
+  font-variant-numeric: tabular-nums; color: var(--muted);
+}
+.pager-bar button {
+  width: 44px; height: 44px; border: 0; border-radius: 50%;
+  background: var(--surface); color: var(--text);
+  font-size: 26px; line-height: 1; cursor: pointer;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.12);
+}
+.pager-bar button:disabled { opacity: 0.3; cursor: default; }
+
+.pager .swipe-hint {
+  display: block; position: fixed; left: 50%; bottom: 72px; z-index: 11;
+  transform: translateX(-50%);
+  padding: 8px 16px; border-radius: 999px;
+  background: rgb(0 0 0 / 0.65); color: #fff; font-size: 14px; white-space: nowrap;
+  pointer-events: none; animation: hint 4s 0.8s both;
+}
+.pager.turned .swipe-hint { display: none; }
+@keyframes hint {
+  0%, 100% { opacity: 0; }
+  12%, 80% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pager .comic figure, .pager .comic figure::after { animation: none !important; }
+}
